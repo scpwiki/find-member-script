@@ -7,7 +7,7 @@
 // ==UserScript==
 // @name        Wikidot find member script
 // @description Adds a button to search for members in the Wikidot admin panel.
-// @version     v0.1.1
+// @version     v0.1.2
 // @updateURL   https://github.com/scpwiki/find-member-script/raw/main/find-member.user.js
 // @downloadURL https://github.com/scpwiki/find-member-script/raw/main/find-member.user.js
 // @supportURL  https://www.wikidot.com/account/messages#/new/4598089
@@ -34,6 +34,14 @@ const CSS = `
   font-weight: bold;
 }
 `;
+
+const WIKIDOT = typeof unsafeWindow === 'undefined'
+  ? window.WIKIDOT
+  : unsafeWindow.WIKIDOT;
+
+if (WIKIDOT === undefined) {
+  alert('Cannot load WIKIDOT.js');
+}
 
 let dateEntryInput;
 let noticeElement;
@@ -75,6 +83,10 @@ function success(message) {
   noticeElement.innerText = message;
 }
 
+function openMemberPage(pageNum) {
+  WIKIDOT.modules.ManageSiteMembersListModule.listeners.loadMemberList(pageNum);
+}
+
 function doSearch() {
   if (currentlyRunning) {
     console.warn('Already running, ignoring input');
@@ -111,7 +123,7 @@ async function binarySearch() {
     const offset = Math.trunc((endPage - startPage) / 2);
     thisPage = startPage + offset;
     notice(`#${steps}: Trying page ${thisPage} [start ${startPage}, end ${endPage}]`);
-    WIKIDOT.modules.ManageSiteMembersListModule.listeners.loadMemberList(thisPage);
+    openMemberPage(thisPage);
     await sleep(SLEEP_DELAY_MS);
 
     membersThisPage = document.querySelectorAll('#all-members span.odate');
