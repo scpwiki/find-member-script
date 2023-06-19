@@ -6,4 +6,6 @@ However, you can directly call `WIKIDOT.modules.ManageSiteMembersListModule.list
 
 This is what this [Greasemonkey](https://www.greasespot.net) script does. Enter the date the user joined the site on (_not_ when they joined Wikidot! Also, remember to get the join date for the correct site) and hit search.
 
+You can [install the script](https://github.com/scpwiki/find-member-script/raw/main/find-member.user.js) here.
+
 Available under the MIT License.
