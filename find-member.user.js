@@ -14,8 +14,8 @@
 // @include     https://*.wikidot.com/_admin
 // ==/UserScript==
 
-const MAX_GUESSES = 80; // safety valve in case of bugs
-const SLEEP_DELAY_MS = 500;
+const MAX_GUESSES = 80;
+const SLEEP_DELAY_MS = 4000;
 const CSS = '';
 
 function parseOdate(element) {
@@ -33,7 +33,7 @@ function dateInRange(date, start, end) {
 }
 
 function sleep(delayMs) {
-  return new Promise(resolve => setTime(resolve, delayMs));
+  return new Promise(resolve => setTimeout(resolve, delayMs));
 }
 
 async function runBinarySearch(dateEntryInput) {
@@ -46,7 +46,7 @@ async function runBinarySearch(dateEntryInput) {
 
   const pageButton = document.querySelector('span.target:nth-last-child(2)');
   const pageCount = parseInt(pageButton.innerText);
-  console.log(`Searching for ${date} among ${pageCount} pages...`);
+  console.log(`Searching for ${rawDate} among ${pageCount} pages...`);
 
   let guesses = 0;
   let startPage = 0;
@@ -56,7 +56,7 @@ async function runBinarySearch(dateEntryInput) {
     thisPage = Math.trunc((endPage - startPage) / 2);
     console.log(`#${guesses}: Trying page ${thisPage} [start ${startPage}, end ${endPage}]`);
     WIKIDOT.modules.ManageSiteMembersListModule.listeners.loadMemberList(thisPage);
-    sleep(SLEEP_DELAY_MS);
+    await sleep(SLEEP_DELAY_MS);
 
     membersThisPage = document.querySelectorAll('#all-members span.odate');
     if (!membersThisPage.length) {
@@ -77,7 +77,13 @@ async function runBinarySearch(dateEntryInput) {
     }
 
     guesses++;
-  } while(!dateInRange(date, startDate, endDate) && guesses < MAX_GUESSES);
+
+    // Safety valve in case of bounds bugs
+    if (guesses > MAX_GUESSES) {
+      alert('BUG: Too many guesses');
+      return;
+    }
+  } while(!dateInRange(date, startDate, endDate));
 
   console.log(`Found date ${date} on ${thisPage} after ${guesses} tries`);
 }
