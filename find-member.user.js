@@ -121,7 +121,6 @@ async function binarySearch() {
     endDate = parseOdate(membersThisPage[membersThisPage.length - 1]);
 
     // Adjust bounds based on binary search
-    console.log({ date, startDate, endDate });
     if (startDate > date) {
       // Date is before current page
       endPage = thisPage;
