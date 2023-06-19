@@ -128,12 +128,11 @@ async function binarySearch() {
     } else if (endDate < date) {
       // Date is after current page
       startPage = thisPage;
-    } else {
-      if (dateInRange(date, startDate, endDate)) {
-        success(`Found date ${rawDate} on page ${thisPage} after ${steps} steps.`);
-      } else {
-        error('BUG: Cannot find page');
-      }
+    } else if (dateInRange(date, startDate, endDate)) {
+      success(`Found date ${rawDate} on page ${thisPage} after ${steps} steps.`);
+      return;
+    } else if (startPage >= endPage) {
+      error('Cannot find date.');
       return;
     }
 
