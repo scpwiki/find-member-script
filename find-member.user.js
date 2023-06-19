@@ -15,8 +15,7 @@
 // ==/UserScript==
 
 const MAX_STEPS = 30;
-const LOAD_SLEEP_DELAY_MS = 1200;
-const SEARCH_SLEEP_DELAY_MS = 4000;
+const SLEEP_DELAY_MS = 4000;
 const CSS = `
 .findmember-notice {
   font-family: 'Courier New', monospace;
@@ -104,13 +103,15 @@ async function binarySearch() {
   let startPage = 1;
   let endPage = pageCount;
   let membersThisPage, startDate, endDate, thisPage;
+  let lastStart = null;
+  let lastEnd = null;
 
   while (true) {
     const offset = Math.trunc((endPage - startPage) / 2);
     thisPage = startPage + offset;
     notice(`#${steps}: Trying page ${thisPage} [start ${startPage}, end ${endPage}]`);
     WIKIDOT.modules.ManageSiteMembersListModule.listeners.loadMemberList(thisPage);
-    await sleep(SEARCH_SLEEP_DELAY_MS);
+    await sleep(SLEEP_DELAY_MS);
 
     membersThisPage = document.querySelectorAll('#all-members span.odate');
     if (!membersThisPage.length) {
@@ -131,14 +132,18 @@ async function binarySearch() {
     } else if (dateInRange(date, startDate, endDate)) {
       success(`Found date ${rawDate} on page ${thisPage} after ${steps} steps.`);
       return;
-    } else if (startPage >= endPage) {
-      error('Cannot find date.');
+    }
+
+    // Safety valves in case of bugs, or if it's out of range
+    if (lastStart == startPage && lastEnd == endPage) {
+      error('Cannot find date, out of range.');
       return;
     }
 
+    lastStart = startPage;
+    lastEnd = endPage;
     steps++;
 
-    // Safety valve in case of bounds bugs
     if (steps > MAX_STEPS) {
       error('BUG: Too many steps');
       return;
@@ -146,7 +151,9 @@ async function binarySearch() {
   }
 }
 
-function setup() {
+function main() {
+  // Wait until the member list is pulled up.
+
   // Check that we're on the member list page
   const memberElement = document.querySelector('#all-members');
   if (!memberElement) {
@@ -183,20 +190,6 @@ function setup() {
   const styleSheet = document.createElement('style');
   styleSheet.innerText = CSS;
   document.head.appendChild(styleSheet);
-}
-
-async function main() {
-  // Continuously poll until the member list is pulled up.
-  console.log('Starting find-member Greasemonkey script, waiting for member list to be pulled up...');
-  let element;
-
-  do {
-    await sleep(LOAD_SLEEP_DELAY_MS);
-    element = document.querySelector('#MembersTab');
-  } while(!element);
-
-  console.log('Found member list, initializing...');
-  setup();
 }
 
 main();
