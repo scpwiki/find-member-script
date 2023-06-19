@@ -44,9 +44,9 @@ async function runBinarySearch(dateEntryInput) {
   let guesses = 0;
   let startPage = 0;
   let endPage = pageCount;
-  let membersThisPage, startDate, endDate;
+  let membersThisPage, startDate, endDate, thisPage;
   do {
-    const thisPage = Math.trunc((endPage - startPage) / 2);
+    thisPage = Math.trunc((endPage - startPage) / 2);
     console.log(`Trying page ${thisPage}, guess #${guesses}, start ${startPage}, end ${endPage}`);
     membersThisPage = document.querySelector('#all-members span.odate');
     startDate = parseOdate(membersThisPage[0]);
@@ -64,6 +64,8 @@ async function runBinarySearch(dateEntryInput) {
     guesses++;
     sleep(500);
   } while(!dateInRange(date, startDate, endDate));
+
+  console.log(`Found date ${date} on ${thisPage} after ${guesses} tries`);
 }
 
 function setup() {
