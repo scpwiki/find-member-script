@@ -16,11 +16,64 @@
 
 const CSS = '';
 
-function runBinarySearch(dateEntryInput) {
-  // TODO
+function parseOdate(element) {
+  for (let i = 0; i < element.classList.length; i++) {
+    klass = element.classList[i];
+    if (klass.startsWith('time_')) {
+      const timestamp = Integer.parseInt(klass.slice(5));
+      return new Date(timestamp * 1000);
+    }
+  }
 }
 
-function main() {
+function dateInRange(date, start, end) {
+  return start <= date && date <= end;
+}
+
+function sleep(delayMs) {
+  return new Promise(resolve => setTime(resolve, delayMs));
+}
+
+async function runBinarySearch(dateEntryInput) {
+  const rawDate = dateEntryInput.innerText;
+  const date = Date.parse(rawDate);
+  const pageButton = document.querySelector('span.target:nth-last-child(2)');
+  const pageCount = Integer.parseInt(pageButton.innerText);
+  console.log(`Searching for ${date} among ${pageCount} pages...`);
+
+  let guesses = 0;
+  let startPage = 0;
+  let endPage = pageCount;
+  let membersThisPage, startDate, endDate;
+  do {
+    const thisPage = Math.trunc((endPage - startPage) / 2);
+    console.log(`Trying page ${thisPage}, guess #${guesses}, start ${startPage}, end ${endPage}`);
+    membersThisPage = document.querySelector('#all-members span.odate');
+    startDate = parseOdate(membersThisPage[0]);
+    endDate = parseOdate(membersThisPage[membersThisPage.length - 1]);
+
+    // Adjust bounds based on binary search
+    if (startDate > date) {
+      // Date is before current page
+      endPage = thisPage;
+    } else if (endDate < date) {
+      // Date is after current page
+      startPage = thisPage;
+    }
+
+    guesses++;
+    sleep(500);
+  } while(!dateInRange(date, startDate, endDate));
+}
+
+function setup() {
+  // Check that we're on the member list page
+  const memberElement = document.querySelector('#all-members');
+  if (!memberElement) {
+    alert('Cannot find member list on this page');
+    return;
+  }
+
   // Create the UI elements
   const searchContainer = document.createElement('div');
   const dateEntryInput = document.createElement('input');
@@ -44,6 +97,11 @@ function main() {
   const styleSheet = document.createElement('style');
   styleSheet.innerText = CSS;
   document.head.appendChild(styleSheet);
+}
+
+function main() {
+  setup();
+  // TODO
 }
 
 main();
