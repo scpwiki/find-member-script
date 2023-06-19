@@ -7,7 +7,7 @@
 // ==UserScript==
 // @name        Wikidot find member script
 // @description Adds a button to search for members in the Wikidot admin panel.
-// @version     v0.1.3
+// @version     v0.1.4
 // @updateURL   https://github.com/scpwiki/find-member-script/raw/main/find-member.user.js
 // @downloadURL https://github.com/scpwiki/find-member-script/raw/main/find-member.user.js
 // @supportURL  https://www.wikidot.com/account/messages#/new/4598089
@@ -16,7 +16,6 @@
 // ==/UserScript==
 
 const MAX_STEPS = 20;
-const SLEEP_DELAY_MS = 3000;
 const CSS = `
 .findmember-notice {
   font-family: 'Courier New', monospace;
@@ -61,10 +60,6 @@ function dateInRange(date, start, end) {
   return start <= date && date <= end;
 }
 
-function sleep(delayMs) {
-  return new Promise(resolve => setTimeout(resolve, delayMs));
-}
-
 function notice(message) {
   noticeElement.classList.remove('findmember-error');
   noticeElement.classList.remove('findmember-success');
@@ -83,8 +78,24 @@ function success(message) {
   noticeElement.innerText = message;
 }
 
-function openMemberPage(pageNum) {
+async function openMemberPage(pageNum) {
   WIKIDOT.modules.ManageSiteMembersListModule.listeners.loadMemberList(pageNum);
+
+  await new Promise(resolve => {
+    const element = document.querySelector('#all-members');
+    const observer = new MutationObserver(() => {
+      for (let i = 0; i < element.childNodes.length; i++) {
+        const child = element.childNodes[i];
+        if (child.id == 'members-list') {
+          observer.disconnect();
+          resolve();
+          return;
+        }
+      }
+    });
+
+    observer.observe(element, { childList: true });
+  });
 }
 
 function doSearch() {
@@ -123,8 +134,7 @@ async function binarySearch() {
     const offset = Math.trunc((endPage - startPage) / 2);
     thisPage = startPage + offset;
     notice(`#${steps}: Trying page ${thisPage} [start ${startPage}, end ${endPage}]`);
-    openMemberPage(thisPage);
-    await sleep(SLEEP_DELAY_MS);
+    await openMemberPage(thisPage);
 
     membersThisPage = document.querySelectorAll('#all-members span.odate');
     if (!membersThisPage.length) {
