@@ -11,7 +11,7 @@
 // @updateURL   https://github.com/scpwiki/find-member-script/raw/main/find-member.user.js
 // @downloadURL https://github.com/scpwiki/find-member-script/raw/main/find-member.user.js
 // @supportURL  https://www.wikidot.com/account/messages#/new/4598089
-// @include     https://*.wikidot.com/_admin
+// @include     https?://*.wikidot.com/_admin
 // ==/UserScript==
 
 const MAX_STEPS = 30;
