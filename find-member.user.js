@@ -55,7 +55,15 @@ async function runBinarySearch(dateEntryInput) {
   do {
     thisPage = Math.trunc((endPage - startPage) / 2);
     console.log(`#${guesses}: Trying page ${thisPage} [start ${startPage}, end ${endPage}]`);
+    WIKIDOT.modules.ManageSiteMembersListModule.listeners.loadMemberList(thisPage);
+    sleep(SLEEP_DELAY_MS);
+
     membersThisPage = document.querySelectorAll('#all-members span.odate');
+    if (!membersThisPage.length) {
+      alert('No members found on page');
+      return;
+    }
+
     startDate = parseOdate(membersThisPage[0]);
     endDate = parseOdate(membersThisPage[membersThisPage.length - 1]);
 
@@ -69,7 +77,6 @@ async function runBinarySearch(dateEntryInput) {
     }
 
     guesses++;
-    sleep(SLEEP_DELAY_MS);
   } while(!dateInRange(date, startDate, endDate) && guesses < MAX_GUESSES);
 
   console.log(`Found date ${date} on ${thisPage} after ${guesses} tries`);
