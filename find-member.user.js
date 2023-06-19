@@ -151,8 +151,25 @@ async function binarySearch() {
   }
 }
 
-function main() {
+async function main() {
   // Wait until the member list is pulled up.
+  await new Promise(resolve => {
+    console.log('Creating observer, waiting for members list to be opened');
+    const element = document.querySelector('#sm-action-area');
+    const observer = new MutationObserver(() => {
+      for (let i = 0; i < element.childNodes.length; i++) {
+        const child = element.childNodes[i];
+        if (child.id == 'MembersTab') {
+          console.log('Opened members list, begin initialization');
+          observer.disconnect();
+          resolve();
+          return;
+        }
+      }
+    });
+
+    observer.observe(element, { childList: true });
+  });
 
   // Check that we're on the member list page
   const memberElement = document.querySelector('#all-members');
