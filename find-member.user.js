@@ -92,7 +92,7 @@ async function binarySearch() {
   const rawDate = dateEntryInput.value;
   const date = new Date(Date.parse(rawDate));
   if (isNaN(date)) {
-    error(`Invalid date entry: '${rawDate}'`);
+    error(`Invalid date entry: '${rawDate}'.`);
     return;
   }
 
@@ -113,7 +113,7 @@ async function binarySearch() {
 
     membersThisPage = document.querySelectorAll('#all-members span.odate');
     if (!membersThisPage.length) {
-      error('No members found on page');
+      error('No members found on page?');
       return;
     }
 
@@ -129,7 +129,7 @@ async function binarySearch() {
       startPage = thisPage;
     } else {
       if (dateInRange(date, startDate, endDate)) {
-        success(`Found date ${rawDate} on page ${thisPage} after ${steps} steps`);
+        success(`Found date ${rawDate} on page ${thisPage} after ${steps} steps.`);
       } else {
         error('BUG: Cannot find page');
       }
@@ -150,7 +150,7 @@ function setup() {
   // Check that we're on the member list page
   const memberElement = document.querySelector('#all-members');
   if (!memberElement) {
-    alert('Cannot find member list on this page');
+    alert('No member list?');
     return;
   }
 
