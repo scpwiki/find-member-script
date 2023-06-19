@@ -14,9 +14,28 @@
 // @include     https://*.wikidot.com/_admin
 // ==/UserScript==
 
-const MAX_GUESSES = 80;
-const SLEEP_DELAY_MS = 4000;
-const CSS = '';
+const MAX_STEPS = 30;
+const SLEEP_DELAY_MS = 6000;
+const CSS = `
+.findmember-notice {
+  font-family: 'Courier New', monospace;
+  text-align: center;
+  font-size: 1.2em;
+}
+
+.findmember-success {
+  color: green;
+  font-weight: bold;
+}
+
+.findmember-error {
+  color: red;
+  font-weight: bold;
+}
+`;
+
+let dateEntryInput;
+let noticeElement;
 
 function parseOdate(element) {
   for (let i = 0; i < element.classList.length; i++) {
@@ -36,31 +55,49 @@ function sleep(delayMs) {
   return new Promise(resolve => setTimeout(resolve, delayMs));
 }
 
-async function runBinarySearch(dateEntryInput) {
+function notice(message) {
+  noticeElement.classList.remove('findmember-error');
+  noticeElement.classList.remove('findmember-success');
+  noticeElement.innerText = message;
+}
+
+function error(message) {
+  noticeElement.classList.remove('findmember-success');
+  noticeElement.classList.add('findmember-error');
+  noticeElement.innerText = message;
+}
+
+function success(message) {
+  noticeElement.classList.remove('findmember-error');
+  noticeElement.classList.add('findmember-success');
+  noticeElement.innerText = message;
+}
+
+async function runBinarySearch() {
   const rawDate = dateEntryInput.value;
-  const date = Date.parse(rawDate);
+  const date = new Date(Date.parse(rawDate));
   if (isNaN(date)) {
-    alert(`Invalid date entry: '${rawDate}'`);
+    error(`Invalid date entry: '${rawDate}'`);
     return;
   }
 
   const pageButton = document.querySelector('span.target:nth-last-child(2)');
   const pageCount = parseInt(pageButton.innerText);
-  console.log(`Searching for ${rawDate} among ${pageCount} pages...`);
 
-  let guesses = 0;
-  let startPage = 0;
+  let steps = 0;
+  let startPage = 1;
   let endPage = pageCount;
   let membersThisPage, startDate, endDate, thisPage;
-  do {
+
+  while (true) {
     thisPage = Math.trunc((endPage - startPage) / 2);
-    console.log(`#${guesses}: Trying page ${thisPage} [start ${startPage}, end ${endPage}]`);
+    notice(`#${steps}: Trying page ${thisPage} [start ${startPage}, end ${endPage}]`);
     WIKIDOT.modules.ManageSiteMembersListModule.listeners.loadMemberList(thisPage);
     await sleep(SLEEP_DELAY_MS);
 
     membersThisPage = document.querySelectorAll('#all-members span.odate');
     if (!membersThisPage.length) {
-      alert('No members found on page');
+      error('No members found on page');
       return;
     }
 
@@ -74,18 +111,23 @@ async function runBinarySearch(dateEntryInput) {
     } else if (endDate < date) {
       // Date is after current page
       startPage = thisPage;
-    }
-
-    guesses++;
-
-    // Safety valve in case of bounds bugs
-    if (guesses > MAX_GUESSES) {
-      alert('BUG: Too many guesses');
+    } else {
+      if (dateInRange(date, startDate, endDate)) {
+        success(`Found date ${date} on ${thisPage} after ${steps} steps`);
+      } else {
+        error('BUG: Cannot find page');
+      }
       return;
     }
-  } while(!dateInRange(date, startDate, endDate));
 
-  console.log(`Found date ${date} on ${thisPage} after ${guesses} tries`);
+    steps++;
+
+    // Safety valve in case of bounds bugs
+    if (steps > MAX_STEPS) {
+      error('BUG: Too many steps');
+      return;
+    }
+  }
 }
 
 function setup() {
@@ -98,7 +140,7 @@ function setup() {
 
   // Create the UI elements
   const searchContainer = document.createElement('div');
-  const dateEntryInput = document.createElement('input');
+  dateEntryInput = document.createElement('input');
   dateEntryInput.classList.add('findmember-input');
   dateEntryInput.setAttribute('type', 'text');
   dateEntryInput.setAttribute('size', '10');
@@ -110,11 +152,17 @@ function setup() {
   searchButton.innerText = 'Search';
   searchButton.classList.add('findmember-button', 'btn', 'btn-xs')
   searchButton.title = 'Search all member pages until the page with this date on it is found';
-  searchButton.addEventListener('click', () => runBinarySearch(dateEntryInput));
+  searchButton.addEventListener('click', () => runBinarySearch());
   searchContainer.appendChild(searchButton);
 
   const membersTab = document.querySelector('#MembersTab');
   membersTab.appendChild(searchContainer);
+
+  noticeElement = document.createElement('div');
+  noticeElement.classList.add('findmember-notice');
+  const actionArea = document.querySelector('#sm-action-area');
+  const tabContent = document.querySelector('.tab-content');
+  actionArea.insertBefore(noticeElement, tabContent);
 
   const styleSheet = document.createElement('style');
   styleSheet.innerText = CSS;
