@@ -15,7 +15,7 @@
 // ==/UserScript==
 
 const MAX_STEPS = 30;
-const LOAD_SLEEP_DELAY_MS = 400;
+const LOAD_SLEEP_DELAY_MS = 1200;
 const SEARCH_SLEEP_DELAY_MS = 4000;
 const CSS = `
 .findmember-notice {
