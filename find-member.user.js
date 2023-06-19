@@ -15,7 +15,7 @@
 // ==/UserScript==
 
 const MAX_STEPS = 30;
-const SLEEP_DELAY_MS = 6000;
+const SLEEP_DELAY_MS = 4000;
 const CSS = `
 .findmember-notice {
   font-family: 'Courier New', monospace;
@@ -90,7 +90,8 @@ async function runBinarySearch() {
   let membersThisPage, startDate, endDate, thisPage;
 
   while (true) {
-    thisPage = Math.trunc((endPage - startPage) / 2);
+    const offset = Math.trunc((endPage - startPage) / 2);
+    thisPage = startPage + offset;
     notice(`#${steps}: Trying page ${thisPage} [start ${startPage}, end ${endPage}]`);
     WIKIDOT.modules.ManageSiteMembersListModule.listeners.loadMemberList(thisPage);
     await sleep(SLEEP_DELAY_MS);
@@ -105,6 +106,7 @@ async function runBinarySearch() {
     endDate = parseOdate(membersThisPage[membersThisPage.length - 1]);
 
     // Adjust bounds based on binary search
+    console.log({ date, startDate, endDate });
     if (startDate > date) {
       // Date is before current page
       endPage = thisPage;
@@ -113,7 +115,7 @@ async function runBinarySearch() {
       startPage = thisPage;
     } else {
       if (dateInRange(date, startDate, endDate)) {
-        success(`Found date ${date} on ${thisPage} after ${steps} steps`);
+        success(`Found date ${rawDate} on page ${thisPage} after ${steps} steps`);
       } else {
         error('BUG: Cannot find page');
       }
