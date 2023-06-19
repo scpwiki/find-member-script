@@ -15,7 +15,8 @@
 // ==/UserScript==
 
 const MAX_STEPS = 30;
-const SLEEP_DELAY_MS = 4000;
+const LOAD_SLEEP_DELAY_MS = 400;
+const SEARCH_SLEEP_DELAY_MS = 4000;
 const CSS = `
 .findmember-notice {
   font-family: 'Courier New', monospace;
@@ -109,7 +110,7 @@ async function binarySearch() {
     thisPage = startPage + offset;
     notice(`#${steps}: Trying page ${thisPage} [start ${startPage}, end ${endPage}]`);
     WIKIDOT.modules.ManageSiteMembersListModule.listeners.loadMemberList(thisPage);
-    await sleep(SLEEP_DELAY_MS);
+    await sleep(SEARCH_SLEEP_DELAY_MS);
 
     membersThisPage = document.querySelectorAll('#all-members span.odate');
     if (!membersThisPage.length) {
@@ -185,9 +186,18 @@ function setup() {
   document.head.appendChild(styleSheet);
 }
 
-function main() {
+async function main() {
+  // Continuously poll until the member list is pulled up.
+  console.log('Starting find-member Greasemonkey script, waiting for member list to be pulled up...');
+  let element;
+
+  do {
+    await sleep(LOAD_SLEEP_DELAY_MS);
+    element = document.querySelector('#MembersTab');
+  } while(!element);
+
+  console.log('Found member list, initializing...');
   setup();
-  // TODO
 }
 
 main();
