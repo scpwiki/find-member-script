@@ -36,6 +36,7 @@ const CSS = `
 
 let dateEntryInput;
 let noticeElement;
+let currentlyRunning = false;
 
 function parseOdate(element) {
   for (let i = 0; i < element.classList.length; i++) {
@@ -73,7 +74,21 @@ function success(message) {
   noticeElement.innerText = message;
 }
 
-async function runBinarySearch() {
+function doSearch() {
+  if (currentlyRunning) {
+    console.warn('Already running, ignoring input');
+    return;
+  }
+
+  try {
+    currentlyRunning = true;
+    binarySearch();
+  } finally {
+    currentlyRunning = false;
+  }
+}
+
+async function binarySearch() {
   const rawDate = dateEntryInput.value;
   const date = new Date(Date.parse(rawDate));
   if (isNaN(date)) {
@@ -154,7 +169,7 @@ function setup() {
   searchButton.innerText = 'Search';
   searchButton.classList.add('findmember-button', 'btn', 'btn-xs')
   searchButton.title = 'Search all member pages until the page with this date on it is found';
-  searchButton.addEventListener('click', () => runBinarySearch());
+  searchButton.addEventListener('click', () => doSearch());
   searchContainer.appendChild(searchButton);
 
   const membersTab = document.querySelector('#MembersTab');
