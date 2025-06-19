@@ -195,7 +195,7 @@ async function main() {
   });
 
   // Check that we're on the member list page
-  const memberElement = document.querySelector('#all-members');
+  const memberElement = document.getElementById('all-members');
   if (!memberElement) {
     alert('No member list?');
     return;
