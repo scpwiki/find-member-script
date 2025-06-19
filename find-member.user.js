@@ -2,6 +2,8 @@
  * Wikidot member list locator userscript
  *
  * For installation instructions, see https://05command.wikidot.com/user-scripts
+ *
+ * Contact: https://www.wikidot.com/account/messages#/new/4598089
  */
 
 // ==UserScript==
@@ -10,7 +12,6 @@
 // @version     v0.1.4
 // @updateURL   https://github.com/scpwiki/find-member-script/raw/main/find-member.user.js
 // @downloadURL https://github.com/scpwiki/find-member-script/raw/main/find-member.user.js
-// @supportURL  https://www.wikidot.com/account/messages#/new/4598089
 // @include     http://*.wikidot.com/_admin
 // @include     https://*.wikidot.com/_admin
 // ==/UserScript==
