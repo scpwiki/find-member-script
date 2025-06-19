@@ -178,7 +178,7 @@ async function main() {
   // Wait until the member list is pulled up.
   await new Promise(resolve => {
     console.log('Creating observer, waiting for members list to be opened');
-    const element = document.querySelector('#sm-action-area');
+    const element = document.getElementById('sm-action-area');
     const observer = new MutationObserver(() => {
       for (let i = 0; i < element.childNodes.length; i++) {
         const child = element.childNodes[i];
