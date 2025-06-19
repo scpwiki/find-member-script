@@ -1,7 +1,7 @@
 /*
  * Wikidot member list locator userscript
  *
- * For installation instructions, see https://scpwiki.com/usertools
+ * For installation instructions, see https://05command.wikidot.com/user-scripts
  */
 
 // ==UserScript==
