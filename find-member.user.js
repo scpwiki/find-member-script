@@ -12,8 +12,8 @@
 // @version     v0.1.4
 // @updateURL   https://github.com/scpwiki/find-member-script/raw/main/find-member.user.js
 // @downloadURL https://github.com/scpwiki/find-member-script/raw/main/find-member.user.js
-// @include     http://*.wikidot.com/_admin
 // @include     https://*.wikidot.com/_admin
+// @include     https://scpwiki.com/_admin
 // ==/UserScript==
 
 const MAX_STEPS = 20;
