@@ -9,7 +9,7 @@
 // ==UserScript==
 // @name        Wikidot find member script
 // @description Adds a button to search for members in the Wikidot admin panel.
-// @version     v0.1.4
+// @version     v0.1.5
 // @updateURL   https://github.com/scpwiki/find-member-script/raw/main/find-member.user.js
 // @downloadURL https://github.com/scpwiki/find-member-script/raw/main/find-member.user.js
 // @include     https://*.wikidot.com/_admin
